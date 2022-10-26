@@ -1,0 +1,6 @@
+#name: deps
+dependencies:
+    - git::korge-box2d::korlibs/korge-box2d::/korge-box2d::a6b6dc45e703cedbbdd7f8c1072eb0ae67322bd3
+    #- git::korge-box2d::korlibs/korge-box2d::/korge-box2d::v0.0.1
+    #- ../korge-box2d
+
