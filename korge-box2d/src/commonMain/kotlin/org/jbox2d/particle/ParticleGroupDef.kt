@@ -1,7 +1,7 @@
 package org.jbox2d.particle
 
-import com.soywiz.korma.geom.Angle
-import com.soywiz.korma.geom.radians
+import korlibs.math.geom.Angle
+import korlibs.math.geom.radians
 import org.jbox2d.collision.shapes.Shape
 import org.jbox2d.common.MathUtils
 import org.jbox2d.common.Vec2

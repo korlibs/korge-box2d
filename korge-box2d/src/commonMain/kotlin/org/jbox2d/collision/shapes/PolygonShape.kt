@@ -23,7 +23,7 @@
  */
 package org.jbox2d.collision.shapes
 
-import com.soywiz.korma.geom.Angle
+import korlibs.math.geom.Angle
 import org.jbox2d.collision.AABB
 import org.jbox2d.collision.RayCastInput
 import org.jbox2d.collision.RayCastOutput

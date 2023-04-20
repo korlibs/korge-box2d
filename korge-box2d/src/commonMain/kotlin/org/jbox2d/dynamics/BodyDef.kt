@@ -23,8 +23,8 @@
  */
 package org.jbox2d.dynamics
 
-import com.soywiz.korma.geom.Angle
-import com.soywiz.korma.geom.radians
+import korlibs.math.geom.Angle
+import korlibs.math.geom.radians
 import org.jbox2d.common.MathUtils
 import org.jbox2d.common.Vec2
 import org.jbox2d.userdata.Box2dTypedUserData

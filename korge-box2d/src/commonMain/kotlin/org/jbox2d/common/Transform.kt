@@ -23,7 +23,7 @@
  */
 package org.jbox2d.common
 
-import com.soywiz.korma.geom.*
+import korlibs.math.geom.*
 import org.jbox2d.internal.*
 
 // updated to rev 100

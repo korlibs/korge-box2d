@@ -23,7 +23,7 @@
  */
 package org.jbox2d.dynamics
 
-import com.soywiz.korma.geom.*
+import korlibs.math.geom.*
 import org.jbox2d.collision.shapes.MassData
 import org.jbox2d.collision.shapes.Shape
 import org.jbox2d.common.MathUtils

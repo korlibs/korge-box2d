@@ -1,18 +1,17 @@
-package com.soywiz.korge.box2d
+package korlibs.korge.box2d
 
-import com.soywiz.kds.*
-import com.soywiz.klock.hr.*
-import com.soywiz.klock.milliseconds
-import com.soywiz.klock.seconds
-import com.soywiz.korge.component.*
-import com.soywiz.korge.debug.*
-import com.soywiz.korge.view.*
-import com.soywiz.korge.view.Circle
-import com.soywiz.korge.view.ktree.*
-import com.soywiz.korio.lang.*
-import com.soywiz.korio.serialization.xml.*
-import com.soywiz.korma.geom.*
-import com.soywiz.korui.*
+import korlibs.datastructure.*
+import korlibs.time.hr.*
+import korlibs.time.milliseconds
+import korlibs.time.seconds
+import korlibs.korge.component.*
+import korlibs.korge.view.*
+import korlibs.korge.view.Circle
+import korlibs.io.lang.*
+import korlibs.io.serialization.xml.*
+import korlibs.korge.view.Ellipse
+import korlibs.math.geom.*
+import korlibs.time.TimeSpan
 import org.jbox2d.collision.shapes.*
 import org.jbox2d.common.*
 import org.jbox2d.dynamics.*
@@ -31,130 +30,6 @@ fun Views.checkBox2dRegistered() {
     if (!registeredBox2dSupport) error("You should call Views.registerBox2dSupport()")
 }
 
-@ThreadLocal
-var KTreeSerializer.box2dWorld by Extra.PropertyThis<KTreeSerializer, Box2dWorldComponent?> { null }
-
-object PhysicsKTreeSerializerExtension : KTreeSerializerExtension("physics") {
-    override fun complete(serializer: KTreeSerializer, view: View) {
-        //serializer.box2dWorld?.world?.forEachBody { println("it.linearVelocityY: ${it.linearVelocityY}") }
-        serializer.box2dWorld?.update(0.0.milliseconds)
-        serializer.box2dWorld?.world?.forEachBody {
-            if (!it.didReset) {
-                it.didReset = true
-                it.type = it.bodyDef.type
-                it.linearVelocityX = it.bodyDef.linearVelocity.x
-                it.linearVelocityY = it.bodyDef.linearVelocity.y
-                it.gravityScale = it.bodyDef.gravityScale
-                it.angularVelocity = it.bodyDef.angularVelocity
-                it.isSleepingAllowed = it.bodyDef.allowSleep
-                it.isAwake = it.bodyDef.awake
-                it.isFixedRotation = it.bodyDef.fixedRotation
-                it.isBullet = it.bodyDef.bullet
-            }
-            //println("it.linearVelocityY: ${it.linearVelocityY}")
-        }
-    }
-
-    override fun setProps(serializer: KTreeSerializer, view: View, xml: Xml) {
-        //println("PhysicsKTreeSerializerExtension.setProps")
-        val body = view.registerBodyWithFixture(
-            world = serializer.box2dWorld?.world,
-            type = xml.strNull("type")?.let { BodyType[it] } ?: BodyType.STATIC,
-            linearVelocityX = xml.float("linearVelocityX", 0f),
-            linearVelocityY = xml.float("linearVelocityY", 0f),
-            gravityScale = xml.float("gravityScale", 1f),
-            angularVelocity = xml.float("angularVelocity", 0f),
-            allowSleep = xml.boolean("isSleepingAllowed", true),
-            awake = xml.boolean("isAwake", true),
-            fixedRotation = xml.boolean("isFixedRotation", false),
-            bullet = xml.boolean("isBullet", false),
-            friction = xml.float("friction", 0f),
-            density = xml.float("density", 1f),
-            restitution = xml.float("restitution", 0f),
-            isSensor = xml.boolean("isSensor", false),
-            active = xml.boolean("isActive", true)
-        ).body
-        body?.didReset = false
-    }
-
-    override fun getProps(serializer: KTreeSerializer, view: View): Map<String, Any?>? {
-        val body = view.body ?: return null
-        val fixture = body.m_fixtureList
-        //println("PhysicsKTreeSerializerExtension.getProps")
-        return LinkedHashMap<String, Any?>().apply {
-            if (body.type != BodyType.STATIC) this["type"] = body.type
-            if (body.linearVelocityX != 0f) this["linearVelocityX"] = body.linearVelocityX
-            if (body.linearVelocityY != 0f) this["linearVelocityY"] = body.linearVelocityY
-            if (body.gravityScale != 1f) this["gravityScale"] = body.gravityScale
-            if (body.angularVelocity != 0f) this["angularVelocity"] = body.angularVelocity
-            if (!body.isSleepingAllowed) this["isSleepingAllowed"] = body.isSleepingAllowed
-            if (!body.isAwake) this["isAwake"] = body.isAwake
-            if (body.isFixedRotation) this["isFixedRotation"] = body.isFixedRotation
-            if (body.isBullet) this["isBullet"] = body.isBullet
-            if (!body.isActive) this["isActive"] = body.isActive
-            if (fixture != null) {
-                if (fixture.isSensor) this["isSensor"] = fixture.isSensor
-                if (fixture.friction != 0f) this["friction"] = fixture.friction
-                if (fixture.density != 1f) this["density"] = fixture.density
-                if (fixture.restitution != 0f) this["restitution"] = fixture.restitution
-            }
-        }
-    }
-}
-fun ViewsContainer.registerBox2dSupportOnce() {
-    if (views.registeredBox2dSupport) return
-    views.registeredBox2dSupport = true
-    views.ktreeSerializer.registerExtension(PhysicsKTreeSerializerExtension)
-    views.viewExtraBuildDebugComponent.add { views, view, container ->
-        val physicsContainer = container.container {
-        }
-        fun physicsContainer() {
-            physicsContainer.removeChildren()
-            val body = view.body
-            if (body != null) {
-                physicsContainer.uiCollapsibleSection("Box2D Physics") {
-                    button("Remove") {
-                        onClick {
-                            body.destroyBody()
-                            view.body = null
-                            body.view = null
-                            physicsContainer()
-                        }
-                    }
-                    uiEditableValue(body::type)
-                    val fixture = body.m_fixtureList
-                    if (fixture != null) {
-                        uiEditableValue(fixture::isSensor)
-                        uiEditableValue(fixture::friction)
-                        uiEditableValue(fixture::density, min = 0f, clampMin = true, clampMax = false)
-                        uiEditableValue(fixture::restitution)
-                    }
-                    uiEditableValue(body::linearVelocityX, min = -100f, max = 100f, clampMin = true, clampMax = false)
-                    uiEditableValue(body::linearVelocityY, min = -100f, max = 100f, clampMin = true, clampMax = false)
-                    uiEditableValue(body::gravityScale, min = -100f, max = 100f, clampMin = true, clampMax = false)
-                    uiEditableValue(body::angularVelocity)
-                    uiEditableValue(body::isSleepingAllowed)
-                    uiEditableValue(body::isAwake)
-                    uiEditableValue(body::isFixedRotation)
-                    uiEditableValue(body::isBullet)
-                    uiEditableValue(body::isActive)
-                }
-            } else {
-                physicsContainer.button("Add box2d physics") {
-                    onClick {
-                        view.registerBodyWithFixture(type = BodyType.STATIC)
-                        views.debugSaveView("Add physics", view)
-                        physicsContainer()
-                    }
-                }
-            }
-            physicsContainer.root?.relayout()
-        }
-        physicsContainer()
-    }
-    //views.serializer.register()
-}
-
 var World.component: Box2dWorldComponent?
     get() = get(Box2dWorldComponent.Key)
     set(value) {
@@ -167,7 +42,12 @@ class Box2dWorldComponent(
     var velocityIterations: Int = 6,
     var positionIterations: Int = 2,
     var autoDestroyBodies: Boolean = true,
-) : FixedUpdateComponent(worldView, 16.milliseconds), WorldRef {
+    val step: TimeSpan = 16.milliseconds
+) : WorldRef {
+    var updater = worldView.addFixedUpdater(step) {
+        update(step)
+    }
+
     init {
         world.component = this
     }
@@ -175,8 +55,8 @@ class Box2dWorldComponent(
     object Key : Box2dTypedUserData.Key<Box2dWorldComponent>()
 
     private val tempVec = Vec2()
-    private val tempPos = Point()
-    override fun update() {
+    private val tempPos = MPoint()
+    private fun update(step: TimeSpan) {
         world.step(step.seconds.toFloat(), velocityIterations, positionIterations)
         world.forEachBody { node ->
             val view = node.view
@@ -210,8 +90,8 @@ class Box2dWorldComponent(
                 val viewRoot = view.root
                 val viewRootStage = viewRoot is Stage
 
-                node.viewInfo.x = view.x
-                node.viewInfo.y = view.y
+                node.viewInfo.x = view.x.toDouble()
+                node.viewInfo.y = view.y.toDouble()
                 node.viewInfo.rotation = view.rotation
 
                 if (autoDestroyBodies && node.viewInfo.onStage && !viewRootStage) {
@@ -231,9 +111,7 @@ var View.box2dWorldComponent by Extra.PropertyThis<View, Box2dWorldComponent?> {
 
 fun View.getOrCreateBox2dWorld(): Box2dWorldComponent {
     if (this.box2dWorldComponent == null) {
-        val component = Box2dWorldComponent(this, World(0f, DEFAULT_GRAVITY_Y).also { it.customScale = DEFAULT_SCALE }, 6, 2)
-        this.box2dWorldComponent = component
-        addComponent(component)
+        this.box2dWorldComponent = Box2dWorldComponent(this, World(0f, DEFAULT_GRAVITY_Y).also { it.customScale = DEFAULT_SCALE }, 6, 2)
     }
     return this.box2dWorldComponent!!
 }
@@ -331,7 +209,7 @@ inline fun <T : View> T.registerBodyWithFixture(
         this.shape = shape ?:
             when {
                 view is Circle -> CircleShape(view.radius / world.customScale)
-                view is Ellipse && view.isCircle -> CircleShape(view.radiusX / world.customScale)
+                view is Ellipse && view.isCircle -> CircleShape(view.radius.width / world.customScale)
                 else -> BoxShape(getLocalBounds() / world.customScale)
             }
 
@@ -381,7 +259,7 @@ inline fun Container.worldView(
     velocityIterations: Int = 6,
     positionIterations: Int = 2,
     callback: @ViewDslMarker Container.() -> Unit = {}
-): Container = container(callback).also {
+): Container = container(callback = callback).also {
     it.getOrCreateBox2dWorld().also {
         it.world.gravity.set(gravityX, gravityY)
         it.velocityIterations = velocityIterations

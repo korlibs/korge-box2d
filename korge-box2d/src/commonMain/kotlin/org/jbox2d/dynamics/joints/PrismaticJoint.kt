@@ -23,7 +23,7 @@
  */
 package org.jbox2d.dynamics.joints
 
-import com.soywiz.korma.geom.*
+import korlibs.math.geom.*
 import org.jbox2d.common.Mat33
 import org.jbox2d.common.MathUtils
 import org.jbox2d.common.Rot

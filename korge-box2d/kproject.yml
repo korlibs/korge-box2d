@@ -1,3 +1,4 @@
 name: "korge-box2d"
 dependencies:
     - "maven::common::com.soywiz.korlibs.korge2:korge"
+    #- git::korge-box2d::korlibs/korge-ext::/korge-ktree::84a9d06c27dcd728ea23824964bcc986671ac691::v0
