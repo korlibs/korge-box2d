@@ -8,7 +8,7 @@ By using kproject:
 
 ### `deps.kproject.yml`
 
-```kotlin
+```yaml
 dependencies:
 - https://github.com/korlibs/korge-box2d/tree/0.0.1/korge-box2d
 ```
