@@ -55,6 +55,7 @@ class Body(bd: BodyDef, var world: World) : Box2dTypedUserData by Box2dTypedUser
         var y: Double = 0.0
         var rotation: Angle = 0.degrees
         var onStage = false
+        var firstFrame: Boolean = true
     }
 
     val viewInfo = ViewInfo()

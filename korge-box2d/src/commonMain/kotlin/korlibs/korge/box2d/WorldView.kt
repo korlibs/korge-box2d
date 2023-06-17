@@ -73,10 +73,12 @@ class Box2dWorldComponent(
                         tempVec.set(viewPos.x * worldScaleInv, viewPos.y * worldScaleInv),
                         view.rotation
                     )
-                    node.linearVelocity = tempVec.set(0f, 0f)
-                    node.angularVelocity = 0f
-                    node.isActive = true
-                    node.isAwake = true
+                    if (!node.viewInfo.firstFrame) {
+                        node.linearVelocity = tempVec.set(0f, 0f)
+                        node.angularVelocity = 0f
+                        node.isActive = true
+                        node.isAwake = true
+                    }
                 }
 
                 val newX = node.position.x.toDouble() * worldScale
@@ -93,6 +95,7 @@ class Box2dWorldComponent(
                 node.viewInfo.x = view.x.toDouble()
                 node.viewInfo.y = view.y.toDouble()
                 node.viewInfo.rotation = view.rotation
+                node.viewInfo.firstFrame = false
 
                 if (autoDestroyBodies && node.viewInfo.onStage && !viewRootStage) {
                     world.destroyBody(node)
@@ -219,6 +222,7 @@ inline fun <T : View> T.registerBodyWithFixture(
         this.restitution = restitution.toFloat()
         this.density = density.toFloat()
     }
+    //body._linearVelocity.set(linearVelocityX.toFloat(), linearVelocityY.toFloat())
     body.view = this
     this.body = body
     return this
