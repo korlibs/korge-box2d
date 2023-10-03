@@ -1,7 +1,6 @@
 package korlibs.korge.box2d
 
 import korlibs.datastructure.*
-import korlibs.time.hr.*
 import korlibs.time.milliseconds
 import korlibs.time.seconds
 import korlibs.korge.component.*
