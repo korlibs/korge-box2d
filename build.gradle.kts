@@ -1,8 +1,7 @@
 import korlibs.korge.gradle.*
 
 plugins {
-    //alias(libs.plugins.korge)
-    id("com.soywiz.korge") version "4.0.6"
+    alias(libs.plugins.korge)
 }
 
 korge {
@@ -19,8 +18,6 @@ korge {
 
     targetJvm()
     targetJs()
-    targetDesktop()
-    //targetDesktopCross()
     targetIos()
     targetAndroid()
 

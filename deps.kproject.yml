@@ -1,3 +1,2 @@
 dependencies:
 - ./korge-box2d
-- ./korge-box2d-ktree
