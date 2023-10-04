@@ -36,5 +36,3 @@ internal fun Arrays_sort(array: LongArray, fromIndex: Int, toIndex: Int) {
     val sorted = array.copyOfRange(fromIndex, toIndex).sortedArray()
     arraycopy(sorted, 0, array, fromIndex, toIndex - fromIndex)
 }
-
-expect fun System_nanoTime(): Long

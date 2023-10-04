@@ -23,7 +23,8 @@
  */
 package org.jbox2d.common
 
-import org.jbox2d.internal.System_nanoTime
+import korlibs.time.*
+import kotlin.time.*
 
 /**
  * Timer for profiling
@@ -32,16 +33,17 @@ import org.jbox2d.internal.System_nanoTime
  */
 class Timer {
 
-    private var resetNanos: Long = 0
+    private var start = TimeSource.Monotonic.markNow()
 
     val milliseconds: Float
-        get() = (System_nanoTime() - resetNanos) / 1000 * 1f / 1000
+        get() = start.elapsedNow().milliseconds.toFloat()
 
     init {
         reset()
     }
 
     fun reset() {
-        resetNanos = System_nanoTime()
+        start = TimeSource.Monotonic.markNow()
     }
+
 }
