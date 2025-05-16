@@ -1,7 +1,7 @@
 .DS_Store
-
 /.gradle
 /.idea
+/.kotlin
 /build
 /deps
 /modules
